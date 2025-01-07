@@ -5,6 +5,8 @@ import tkinter as tk
 from tkinter import filedialog, ttk
 
 from fix_host_save import sav_to_json
+from palworld_save_tools.commands.convert import convert_sav_to_json
+from palworld_save_tools.paltypes import PALWORLD_CUSTOM_PROPERTIES, PALWORLD_TYPE_HINTS, DISABLED_PROPERTIES
 
 guid_cache = {}
 config_file = 'config.json'
@@ -31,7 +33,16 @@ def update_guid_dropdowns():
         
         global guid_cache
         if file_names != list(guid_cache.keys()):
-            level_json = sav_to_json(folder_path + '/Level.sav')
+            # level_json = sav_to_json(folder_path + '/Level.sav')
+            level_sav_path = folder_path + '/Level.sav'
+            convert_sav_to_json(
+                filename=level_sav_path,
+                output_path=level_sav_path + '.json',
+                allow_nan=True,
+                custom_properties_keys = ",".join(set(PALWORLD_CUSTOM_PROPERTIES.keys()) - DISABLED_PROPERTIES)
+            )
+            with open(level_sav_path + '.json', 'rb') as f:
+                level_json = json.load(f)
             usernames = [
                 find_guid_info(level_json, guid)
                 for guid in file_names

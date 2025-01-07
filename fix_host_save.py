@@ -5,8 +5,9 @@ import sys
 import zlib
 
 from palworld_save_tools.gvas import GvasFile
+from palworld_save_tools.commands.convert import convert_sav_to_json
 from palworld_save_tools.palsav import compress_gvas_to_sav, decompress_sav_to_gvas
-from palworld_save_tools.paltypes import PALWORLD_CUSTOM_PROPERTIES, PALWORLD_TYPE_HINTS
+from palworld_save_tools.paltypes import PALWORLD_CUSTOM_PROPERTIES, PALWORLD_TYPE_HINTS, DISABLED_PROPERTIES
 
 def main():
     if len(sys.argv) < 5:
@@ -73,7 +74,15 @@ of your save folder before continuing. Press enter if you would like to continue
     input('> ')
     
     # Convert save files to JSON so it is possible to edit them.
-    level_json = sav_to_json(level_sav_path)
+    # level_json = sav_to_json(level_sav_path)
+    convert_sav_to_json(
+        filename=level_sav_path,
+        output_path=level_sav_path + '.json',
+        allow_nan=True,
+        custom_properties_keys = ",".join(set(PALWORLD_CUSTOM_PROPERTIES.keys()) - DISABLED_PROPERTIES)
+    )
+    with open(level_sav_path + '.json', 'rb') as f:
+        level_json = json.load(f)
     old_json = sav_to_json(old_sav_path)
     
     # Replace all instances of the old GUID with the new GUID.
